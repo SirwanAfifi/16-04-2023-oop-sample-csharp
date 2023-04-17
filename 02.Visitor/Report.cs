@@ -1,3 +1,5 @@
+using System.ComponentModel;
+using System.Reflection;
 using System.Text;
 
 namespace Visitor
@@ -34,10 +36,14 @@ namespace Visitor
         {
             var sb = new StringBuilder();
             var headers = pets
-                    .SelectMany(pet => pet.GetType().GetProperties())
-                    .Select(prop => prop.Name)
-                    .Distinct()
-                    .ToArray();
+                .SelectMany(pet => pet.GetType().GetProperties())
+                .Select(prop =>
+                {
+                    var displayNameAttr = prop.GetCustomAttribute<DisplayNameAttribute>();
+                    return displayNameAttr != null ? displayNameAttr.DisplayName : prop.Name;
+                })
+                .Distinct()
+                .ToArray();
 
             sb.AppendLine(string.Join(",", headers));
             return sb.ToString();
